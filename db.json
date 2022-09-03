@@ -1,0 +1,17 @@
+{
+  "Project": [
+    {"projectId": 43, "projectName": "Project 1", "dateOfStart": "01/12/2020", "teamSize": "1230"},
+    {"projectId": 5, "projectName": "Project 2", "dateOfStart": "01/09/2021", "teamSize": "325"},
+    {"projectId": 3, "projectName": "Project 3", "dateOfStart": "01/10/2022", "teamSize": "908"}
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  }
+}

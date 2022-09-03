@@ -1,0 +1,338 @@
+<div class="container">
+    <h1>
+      Projects
+      <i class="fa fa-circle-o-notch fa-spin" style="font-size: 34px;" *ngIf="showLoading"></i>
+    </h1>
+    
+    <div class="row mt-4 mb-4">
+
+        <div class="col-2">
+          <div class="row">
+            <div class="col-5">
+              <button (click)="onNewClick($event)" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal">
+                Add Project
+              </button>
+            </div>
+            <div class="col-5">
+              <button (click)="onHideShowDetails()" type="button" class="btn btn-secondary">
+                Hide/ Show
+              </button>
+            </div>
+
+            <div class="col-1 custom-control custom-checkbox">
+              <input type="checkbox" name="isAllChecked" class="custom-control-input"
+                      id="isAllChecked" [(ngModel)]="isAllChecked" value="true"
+                      (change)="isAllCheckedChange($event)"
+              >
+              <label class="custom-control-label"></label>
+            </div>
+          </div>
+          
+        </div>
+        
+        <label for="" class="col-form-label col-2 text-right">Search By:</label>
+
+        <div class="col-3">
+          <select name="searchBy" [(ngModel)]="searchBy" class="form-select form-select-sm">
+            <option value="">-- Select --</option>
+            <option value="PI">Project Id</option>
+            <option value="PN">Project Name</option>
+            <option value="DOF">Date Of Start</option>
+            <option value="TS">Time Size</option>
+          </select>
+        </div>
+
+        <label for="" class="col-form-label col-1 text-right">Search :</label>
+
+        <div class="col-4">
+          <div class="input-group">
+            <input type="text" [(ngModel)]="searchText" name="searchText" class="form-control">
+            <div class="input-group-append">
+              <button class="btn btn-primary" (click)="searchProject()"><i class="fa fa-search"></i></button>
+            </div>
+          </div>
+        </div>      
+    </div>
+
+    <div class="row">
+      <div class="col-md-4" *ngFor="let project of Projects; let i = index">
+          <app-project [currentProject]="project" 
+                       [recordIndex]="i"
+                       (editProject)="onEditProject(i)"
+                       (deleteProject)="onDeleteProject(i)"
+                       #prj
+          >
+            <app-check-box-printer #selectionBox>
+            </app-check-box-printer>
+            <app-check-box-printer #selectionBox>
+            </app-check-box-printer>
+          </app-project>
+      </div>
+    </div>
+</div>
+
+<form #newForm="ngForm" novalidate="novalidate" appClientLocationStatusValidator>
+  <div class="modal" tabindex="-1" id="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">New Project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Project Name</label>
+            <div class="col-sm-8">
+              <input type="text" #prjName [(ngModel)]="newProject.projectName" class="form-control" name="ProjectName" maxlength="30" minlength="3"
+                    placeholder="Project Name" style="width: 100%" required pattern="[A-Za-z0-9 /-]*$"
+                    #newProjectName="ngModel" [ngClass]="{'is-invalid':newProjectName.invalid && (newProjectName.dirty || newProjectName.touched || newForm.submitted),
+                    'is-valid': newProjectName.valid && (newProjectName.dirty || newProjectName.touched || newForm.submitted)}">
+                    <span class="text-danger" *ngIf="newProjectName.invalid && (newProjectName.dirty || newProjectName.touched || newForm.submitted) && newProjectName.errors?.['minlength']">
+                      Project Name should be at last 3 charactere long
+                    </span>
+                    <span class="text-danger" *ngIf="newProjectName.invalid && (newProjectName.dirty || newProjectName.touched || newForm.submitted) && newProjectName.errors?.['pattern']">
+                      Project Name can containe alphabets, digits, dot, hyphen or space only
+                    </span>
+
+                    <span class="text-danger" *ngIf="newProjectName.invalid && (newProjectName.dirty || newProjectName.touched || newForm.submitted) && newProjectName.errors?.['required']">
+                      Project Name can't be blank
+                    </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Date of Start</label>
+            <div class="col-sm-8">
+              <input  name="dateOfStart" [(ngModel)]="newProject.dateOfStart" type="date" class="form-control" placeholder="Date of Start" style="width: 100%;"
+                      #newDateOfStart="ngModel" [ngClass]="{'is-invalid':newDateOfStart.invalid && (newDateOfStart.dirty || newDateOfStart.touched || newForm.submitted),
+                      'is-valid': newDateOfStart.valid && (newDateOfStart.dirty || newDateOfStart.touched || newForm.submitted)}"
+                      required name="DateOfStart">
+              <span class="text-danger" *ngIf="newDateOfStart.invalid && (newDateOfStart.dirty || newDateOfStart.touched || newForm.submitted) && newDateOfStart.errors?.['required']">
+                  Date Of Start can't be blank
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Team Size</label>
+            <div class="col-sm-8">
+              <input  name="teamSize" [(ngModel)]="newProject.teamSize" type="text" class="form-control" placeholder="Team Size" style="width: 100%;"
+                      #NewTeamSize="ngModel" [ngClass]="{'is-invalid':NewTeamSize.invalid && (NewTeamSize.dirty || NewTeamSize.touched || newForm.submitted),
+                      'is-valid': NewTeamSize.valid && (NewTeamSize.dirty || NewTeamSize.touched || newForm.submitted)}"
+                      required pattern="^[0-9]*$" maxlength="7"
+                      appTeamSizeValidator='5'
+              >
+              <span class="text-danger" *ngIf="NewTeamSize.invalid && (NewTeamSize.dirty || NewTeamSize.touched || newForm.submitted) && NewTeamSize.errors?.['required']">
+                Time Size can't be blank
+              </span>
+              <span class="text-danger" *ngIf="NewTeamSize.invalid && (NewTeamSize.dirty || NewTeamSize.touched || newForm.submitted) && NewTeamSize.errors?.['pattern']">
+                Time Size should be a number
+              </span>
+              <span class="text-danger" *ngIf="NewTeamSize.invalid && (NewTeamSize.dirty || NewTeamSize.touched || newForm.submitted) && NewTeamSize.errors?.['divisible']">
+                Time Size should be divisible by 5
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Active</label>
+            <div class="col-sm-8">
+              <input name="active" [(ngModel)]="newProject.active" type="checkbox" class="form-check-input">
+              <label class="form-check-label">Active</label>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Status</label>
+            <div class="col-sm-8">
+              <div class="form-check form-check-inline">
+                <input name="Status" value="In Force" [(ngModel)]="newProject.status" type="radio" class="form-check-input"
+                        required #NewStatutInForce="ngModel"
+                >
+                <label class="form-check-label">In Force</label>
+              </div>
+
+              <div class="form-check form-check-inline">
+                <input  name="Status" value="Support" [(ngModel)]="newProject.status" type="radio" class="form-check-input"
+                        required #NewStatutSupport="ngModel"
+                >
+                <label class="form-check-label">Support</label>
+              </div>
+
+              <span class="text-danger" *ngIf="NewStatutInForce.invalid && (NewStatutInForce.dirty || NewStatutInForce.touched || newForm.submitted) && NewStatutInForce.errors?.['required']">
+                Please select status
+              </span>
+
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Client Location</label>
+            <div class="col-sm-8">
+              <select class="form-select form-select-sm" name="clientLocation" [(ngModel)]="newProject.clientLocationId"
+                      #newClientLocationId="ngModel" [ngClass]="{'is-invalid':newClientLocationId.invalid && (newClientLocationId.dirty || newClientLocationId.touched || newForm.submitted),
+                      'is-valid': newClientLocationId.valid && (newClientLocationId.dirty || newClientLocationId.touched || newForm.submitted)}"
+                      required
+              >
+                <option value="">Select Client Location</option>
+                <option *ngFor="let location of clientLoctaion" [value]="location.clientLocationId">{{location.clientLocationName}}</option>
+              </select>
+              <span class="text-danger" *ngIf="newClientLocationId.invalid && (newClientLocationId.dirty || newClientLocationId.touched || newForm.submitted) && newClientLocationId.errors?.['required']">
+                Please select Client Location
+              </span>
+
+              <span class="text-danger" *ngIf="newForm.invalid && (newForm.dirty || newForm.touched || newForm.submitted) && newForm.errors?.['ClientLocationStatus']">
+                Status has Support
+              </span>
+            </div>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" data-bs-dismiss="modal" id="newFormCancel">Close</button>
+          <button type="button" class="btn btn-success" (click)="onSaveProject()">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<form #editForm="ngForm" novalidate="novalidate">
+  <div class="modal" tabindex="-1" id="editModel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label class="col-lg-4 col-form-label">Project Name</label>
+            <div class="col-sm-8">
+              <input name="projectName" type="text" [(ngModel)]="editProject.projectName" class="form-control" placeholder="Project Name" style="width: 100%"
+                      required pattern="[A-Za-z0-9 /-]*$"
+                      #editProjectName="ngModel" [ngClass]="{'is-invalid':editProjectName.invalid && (editProjectName.dirty || editProjectName.touched || newForm.submitted),
+                      'is-valid': editProjectName.valid && (editProjectName.dirty || editProjectName.touched || newForm.submitted)}"
+              >
+              <span class="text-danger" *ngIf="editProjectName.invalid && (editProjectName.dirty || editProjectName.touched || newForm.submitted) && editProjectName.errors?.['minlength']">
+                Project Name should be at last 3 charactere long
+              </span>
+              <span class="text-danger" *ngIf="editProjectName.invalid && (editProjectName.dirty || editProjectName.touched || newForm.submitted) && editProjectName.errors?.['pattern']">
+                Project Name can containe alphabets, digits, dot, hyphen or space only
+              </span>
+
+              <span class="text-danger" *ngIf="editProjectName.invalid && (editProjectName.dirty || editProjectName.touched || newForm.submitted) && editProjectName.errors?.['required']">
+                Project Name can't be blank
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Date of Start</label>
+            <div class="col-sm-8">
+              <input name="dateOfStart" [(ngModel)]="editProject.dateOfStart" type="date" class="form-control" placeholder="Date of Start" style="width: 100%;"
+                      #editDateOfStart="ngModel" [ngClass]="{'is-invalid':editDateOfStart.invalid && (editDateOfStart.dirty || editDateOfStart.touched || newForm.submitted),
+                      'is-valid': editDateOfStart.valid && (editDateOfStart.dirty || editDateOfStart.touched || newForm.submitted)}"
+                      required name="DateOfStart"
+              >
+              <span class="text-danger" *ngIf="editDateOfStart.invalid && (editDateOfStart.dirty || editDateOfStart.touched || newForm.submitted) && editDateOfStart.errors?.['required']">
+                  Date Of Start can't be blank
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Team Size</label>
+            <div class="col-sm-8">
+              <input name="teamSize" [(ngModel)]="editProject.teamSize" type="number" class="form-control" placeholder="Team Size" style="width: 100%;"
+                      #editTeamSize="ngModel" [ngClass]="{'is-invalid':editTeamSize.invalid && (editTeamSize.dirty || editTeamSize.touched || newForm.submitted),
+                      'is-valid': editTeamSize.valid && (editTeamSize.dirty || editTeamSize.touched || newForm.submitted)}"
+                      required pattern="^[0-9]*$" maxlength="7"
+              >
+              <span class="text-danger" *ngIf="editTeamSize.invalid && (editTeamSize.dirty || editTeamSize.touched || newForm.submitted) && editTeamSize.errors?.['required']">
+                Time Size can't be blank
+              </span>
+              <span class="text-danger" *ngIf="editTeamSize.invalid && (editTeamSize.dirty || editTeamSize.touched || newForm.submitted) && editTeamSize.errors?.['pattern']">
+                Time Size should be a number
+            </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Active</label>
+            <div class="col-sm-8">
+              <input name="active" [(ngModel)]="editProject.active" type="checkbox" class="form-check-input">
+              <label class="form-check-label">Active</label>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Status</label>
+            <div class="col-sm-8">
+              <div class="form-check form-check-inline">
+                <input name="status" value="In Force" [(ngModel)]="editProject.status" type="radio" class="form-check-input"
+                        required #editStatutInForce="ngModel" 
+                >
+                <label class="form-check-label">In Force</label>
+              </div>
+
+              <div class="form-check form-check-inline">
+                <input name="status" value="Support" [(ngModel)]="editProject.status" type="radio" class="form-check-input"
+                        required #editStatutSupport="ngModel"
+                >
+                <label class="form-check-label">Support</label>
+              </div>
+              <span class="text-danger" *ngIf="editStatutInForce.invalid && (NewStatutInForce.dirty || NewStatutInForce.touched || newForm.submitted) && NewStatutInForce.errors?.['required']">
+                Please select status
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group row mt-2">
+            <label class="col-lg-4 col-form-label">Client Location</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="clientLocation" [(ngModel)]="editProject.clientLocation.clientLocationName"
+                      #editClientLocationId="ngModel" [ngClass]="{'is-invalid':editClientLocationId.invalid && (editClientLocationId.dirty || editClientLocationId.touched || newForm.submitted),
+                      'is-valid': editClientLocationId.valid && (editClientLocationId.dirty || editClientLocationId.touched || newForm.submitted)}"
+                      required
+              >
+                <option value="null">Select Client Location</option>
+                <option *ngFor="let location of clientLoctaion" [value]="location.clientLocationId">{{location.clientLocationName}}</option>
+              </select>
+              <span class="text-danger" *ngIf="editClientLocationId.invalid && (editClientLocationId.dirty || editClientLocationId.touched || newForm.submitted) && editClientLocationId.errors?.['required']">
+                Please select Client Location
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="updateProject()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="modal" tabindex="-1" id="deleteModel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p style="color: rgb(230, 205, 21);">Are you sure to delete this Project ?</p>
+        <div class="form-group row mb-3">
+          <label class="col-lg-4 col-form-label">Project Name :</label>
+          <div class="col-sm-8">
+            <input type="text" disabled [(ngModel)]="projectDelete.projectName" class="form-control" placeholder="Project Name" style="width: 100%">
+          </div>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" id="editFormCancel" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="deleteProject(projectDelete.projectId)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
